@@ -1,11 +1,15 @@
 package com.llmrix.model.router.core.model;
 
+import lombok.Getter;
+import lombok.experimental.Accessors;
 import com.llmrix.model.router.core.api.ModelClient;
 
 import java.util.Objects;
 import java.util.Set;
 
 /** Runtime capability snapshot derived from the concrete provider adapter. */
+@Getter
+@Accessors(fluent = true)
 public final class ProviderCapabilities {
     private final Set<ModelOperation> operations;
     private final Set<ModelFeature> features;
@@ -23,8 +27,6 @@ public final class ProviderCapabilities {
         return new ProviderCapabilities(operations, features);
     }
 
-    public Set<ModelOperation> operations() { return operations; }
-    public Set<ModelFeature> features() { return features; }
     public boolean supports(ModelOperation operation) { return operations.contains(operation); }
     public boolean supports(ModelFeature feature) { return features.contains(feature); }
 }

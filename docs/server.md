@@ -17,7 +17,7 @@ For an existing Spring Boot application, add the Router starter and a web runtim
 <dependency>
   <groupId>com.llmrix.model</groupId>
   <artifactId>llmrix-model-router-spring-starter</artifactId>
-  <version>1.0.2</version>
+  <version>1.0.3</version>
 </dependency>
 <dependency>
   <groupId>org.springframework.boot</groupId>
@@ -145,6 +145,75 @@ llmrix:
 It may point to a proxy or private gateway. OpenAI, DeepSeek, OpenRouter, and Ollama are built in; additional
 providers implement the `ModelProvider` SPI.
 
+### JEV Semantic Routing
+
+JEV is an optional semantic enhancement for existing Chat routes. It does not create a second model
+pool and does not replace the configured route strategy. The Router first applies its normal
+capability, health, quota, and concurrency filters, then passes the remaining candidates and their
+user-defined `routing-tags` to a JEV decision client. The existing route strategy still selects the
+final target and the existing executor still owns retry and fallback behavior.
+
+Enable it only for explicitly selected routes:
+
+```yaml
+llmrix:
+  model:
+    router:
+      decision:
+        enabled: true
+        provider: jev
+        base-url: ${JEV_BASE_URL:https://api.typesafe.ai}
+        api-key: ${JEV_API_KEY:}
+        authenticator: bearer
+        options: {}
+        routes: [general, reasoning]
+        timeout: 2s
+        min-confidence: 0.70
+        failure-mode: fallback
+```
+
+The model pool remains configured in the existing route declaration. Add semantic tags to models
+that should be preferred for a given request type:
+
+```yaml
+integrations:
+  deepseek:
+    models:
+      - name: deepseek-chat
+        operations: [chat]
+        features: [streaming, tools]
+        traits: [code]
+        metadata:
+          routing-tags: "general,coding"
+      - name: deepseek-reasoner
+        operations: [chat]
+        features: [streaming]
+        traits: [reasoning, long-context]
+        metadata:
+          routing-tags: "reasoning,planning,coding"
+```
+
+`routing-tags` are user-defined semantic labels. The Router does not maintain a fixed global enum
+or a separate `decision.intents` list. For each request, the union of tags on the currently eligible
+route candidates is the JEV allow-list. JEV may return preferred tags and a confidence score, but it
+may not introduce a tag outside that allow-list or select an arbitrary model ID. Tags are soft
+preferences and cannot replace hard declarations such as `operations`, `features`, `traits`,
+`input-modalities`, limits, health, or quota.
+
+The standard integrations artifact includes a TypeSafe JEV provider. It calls `POST /v1/systemone`
+with `Authorization: Bearer <decision.api-key>`, and defaults to `https://api.typesafe.ai`.
+`decision.options.model` can override the default `jev-latest` model. The configuration fields
+`decision.base-url`, `decision.api-key`, `decision.authenticator`, and `decision.options` are passed
+to the configured decision provider. Applications can override the built-in implementation with:
+
+- a `JevDecisionClient` Spring bean; or
+- a `JevDecisionProvider` bean whose `id()` matches `decision.provider` (normally `jev`).
+
+When JEV is enabled, the built-in provider is used unless an application supplies a matching custom
+provider or client. Startup fails if a non-built-in provider is requested but no matching provider is
+registered. When the client times out, fails, returns an invalid tag, or returns a confidence below
+`min-confidence`, the Router uses the original route strategy.
+
 Each integration contains a `models` list with explicit `name` and operation declarations. Routes
 refer to models with explicit `integration` and `model` fields. `routes.<id>.models` is the complete
 load-balancing pool; there is no separate fallback list.
@@ -240,7 +309,7 @@ The runnable server example is in `llmrix-model-router-server-examples`:
 
 ```bash
 mvn -pl :llmrix-model-router-server-examples -am package -DskipTests
-java -jar llmrix-model-examples/llmrix-model-router-server-examples/target/llmrix-model-router-server-examples-1.0.2-exec.jar
+java -jar llmrix-model-examples/llmrix-model-router-server-examples/target/llmrix-model-router-server-examples-1.0.3-exec.jar
 ```
 
 The default port is `8080`. `API_KEY` is the Bearer key for the Router HTTP API and must match

@@ -5,16 +5,24 @@ import com.llmrix.model.router.core.routing.RoutingHints;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 
+/** Public data type used by the model routing API. */
 @Getter
 @Accessors(fluent = true)
 public final class SpeechRequest implements ModelRequest {
+    /** Value of the `input` property. */
     private final String input;
+    /** Value of the `voice` property. */
     private final String voice;
+    /** Value of the `responseFormat` property. */
     private final String responseFormat;
+    /** Value of the `speed` property. */
     private final Double speed;
+    /** Value of the `instructions` property. */
     private final String instructions;
+    /** Value of the `routingHints` property. */
     private final RoutingHints routingHints;
 
+    /** Creates an instance of this API type. */
     public SpeechRequest(String input, String voice, String responseFormat, Double speed,
                          String instructions, RoutingHints routingHints) {
         if (input == null || input.isBlank()) throw new IllegalArgumentException("speech input must not be blank");
@@ -30,7 +38,9 @@ public final class SpeechRequest implements ModelRequest {
         this.routingHints = routingHints == null ? RoutingHints.none() : routingHints;
     }
 
+    /** Implements the API contract. */
     @Override
+    /** Executes the associated model API operation. */
     public int estimatedInputTokens() {
         return Math.max(1, (input.length() + 3) / 4);
     }

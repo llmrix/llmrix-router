@@ -28,7 +28,7 @@ LLMRix exposes multiple model providers through stable provider-neutral `ModelCl
 
 Use it as an embedded Java SDK, a Spring Boot starter, or an OpenAI-compatible routing service.
 
-> Project status: General Availability (`1.0.2`). The Java API and configuration model are production-ready, with Semantic Versioning strictly enforced. Published to [Maven Central](https://central.sonatype.com/artifact/com.llmrix.model/llmrix-model-router-core).
+> Project status: General Availability (`1.0.3`). The Java API and configuration model are production-ready, with Semantic Versioning strictly enforced. Published to [Maven Central](https://central.sonatype.com/artifact/com.llmrix.model/llmrix-model-router-core).
 
 ## Why LLMRix
 
@@ -78,12 +78,12 @@ Clients enter through embedded Java, Spring Boot, or OpenAI-compatible HTTP APIs
 <dependency>
   <groupId>com.llmrix.model</groupId>
   <artifactId>llmrix-model-router-core</artifactId>
-  <version>1.0.2</version>
+  <version>1.0.3</version>
 </dependency>
 <dependency>
   <groupId>com.llmrix.model</groupId>
   <artifactId>llmrix-model-router-integrations</artifactId>
-  <version>1.0.2</version>
+  <version>1.0.3</version>
 </dependency>
 ```
 

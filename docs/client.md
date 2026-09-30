@@ -15,7 +15,7 @@ need to change.
 <dependency>
   <groupId>com.llmrix.model</groupId>
   <artifactId>llmrix-model-orion</artifactId>
-  <version>1.0.2</version>
+  <version>1.0.3</version>
 </dependency>
 ```
 
@@ -177,7 +177,7 @@ Add the optional Spring integration instead of constructing the client manually:
 <dependency>
   <groupId>com.llmrix.model</groupId>
   <artifactId>llmrix-model-orion-spring-starter</artifactId>
-  <version>1.0.2</version>
+  <version>1.0.3</version>
 </dependency>
 ```
 

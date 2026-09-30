@@ -1,10 +1,14 @@
 package com.llmrix.model.orion.client;
 
+import lombok.Getter;
+import lombok.experimental.Accessors;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
 /** Per-request transport options that do not change model semantics. */
+@Getter
+@Accessors(fluent = true)
 public final class OrionModelRequestOptions {
     public static final OrionModelRequestOptions DEFAULT = new OrionModelRequestOptions(Map.of());
     private final Map<String, String> headers;
@@ -14,8 +18,6 @@ public final class OrionModelRequestOptions {
     }
 
     public static Builder builder() { return new Builder(); }
-    public Map<String, String> headers() { return headers; }
-
     public static final class Builder {
         private final Map<String, String> headers = new LinkedHashMap<>();
 
