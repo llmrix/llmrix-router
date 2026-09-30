@@ -17,11 +17,17 @@ import java.util.Optional;
  * Typed capabilities exposed by one configured provider model.
  */
 public final class ModelClient {
+    /** Chat capability exposed by the configured model, when available. */
     private final ChatModel chat;
+    /** Embedding capability exposed by the configured model, when available. */
     private final EmbeddingModel embeddings;
+    /** Reranking capability exposed by the configured model, when available. */
     private final RerankModel rerank;
+    /** Audio capability exposed by the configured model, when available. */
     private final AudioModel audio;
+    /** Image capability exposed by the configured model, when available. */
     private final ImageModel images;
+    /** Video capability exposed by the configured model, when available. */
     private final VideoModel videos;
 
     private ModelClient(Builder builder) {
@@ -36,62 +42,77 @@ public final class ModelClient {
         }
     }
 
+    /** Creates a builder for a capability set. */
     public static Builder builder() {
         return new Builder();
     }
 
+    /** Creates a client exposing only the supplied chat capability. */
     public static ModelClient chat(ChatModel model) {
         return builder().chat(model).build();
     }
 
+    /** Executes the associated model API operation. */
     public Optional<ChatModel> chat() {
         return Optional.ofNullable(chat);
     }
 
+    /** Executes the associated model API operation. */
     public Optional<EmbeddingModel> embeddings() {
         return Optional.ofNullable(embeddings);
     }
 
+    /** Executes the associated model API operation. */
     public Optional<RerankModel> rerank() {
         return Optional.ofNullable(rerank);
     }
 
+    /** Executes the associated model API operation. */
     public Optional<AudioModel> audio() {
         return Optional.ofNullable(audio);
     }
 
+    /** Executes the associated model API operation. */
     public Optional<ImageModel> images() {
         return Optional.ofNullable(images);
     }
 
+    /** Executes the associated model API operation. */
     public Optional<VideoModel> videos() {
         return Optional.ofNullable(videos);
     }
 
+    /** Executes the associated model API operation. */
     public ChatModel requireChat() {
         return require(chat, "chat");
     }
 
+    /** Executes the associated model API operation. */
     public EmbeddingModel requireEmbeddings() {
         return require(embeddings, "embeddings");
     }
 
+    /** Executes the associated model API operation. */
     public RerankModel requireRerank() {
         return require(rerank, "rerank");
     }
 
+    /** Executes the associated model API operation. */
     public AudioModel requireAudio() {
         return require(audio, "audio");
     }
 
+    /** Executes the associated model API operation. */
     public ImageModel requireImages() {
         return require(images, "images");
     }
 
+    /** Executes the associated model API operation. */
     public VideoModel requireVideos() {
         return require(videos, "videos");
     }
 
+    /** Returns whether this client supports the requested operation. */
     public boolean supports(ModelOperation operation) {
         return switch (operation) {
             case CHAT -> chat != null;
@@ -103,6 +124,7 @@ public final class ModelClient {
         };
     }
 
+    /** Returns whether this client supports the requested cross-cutting feature. */
     public boolean supports(ModelFeature feature) {
         return switch (feature) {
             case STREAMING -> chat != null && (chat.supportsStreaming() || overrides(chat, "stream", ChatRequest.class));
@@ -133,36 +155,43 @@ public final class ModelClient {
         private ImageModel images;
         private VideoModel videos;
 
+        /** Configures this builder or creates the configured API object. */
         public Builder chat(ChatModel value) {
             chat = Objects.requireNonNull(value);
             return this;
         }
 
+        /** Configures this builder or creates the configured API object. */
         public Builder embeddings(EmbeddingModel value) {
             embeddings = Objects.requireNonNull(value);
             return this;
         }
 
+        /** Configures this builder or creates the configured API object. */
         public Builder rerank(RerankModel value) {
             rerank = Objects.requireNonNull(value);
             return this;
         }
 
+        /** Configures this builder or creates the configured API object. */
         public Builder audio(AudioModel value) {
             audio = Objects.requireNonNull(value);
             return this;
         }
 
+        /** Configures this builder or creates the configured API object. */
         public Builder images(ImageModel value) {
             images = Objects.requireNonNull(value);
             return this;
         }
 
+        /** Configures this builder or creates the configured API object. */
         public Builder videos(VideoModel value) {
             videos = Objects.requireNonNull(value);
             return this;
         }
 
+        /** Configures this builder or creates the configured API object. */
         public ModelClient build() {
             return new ModelClient(this);
         }

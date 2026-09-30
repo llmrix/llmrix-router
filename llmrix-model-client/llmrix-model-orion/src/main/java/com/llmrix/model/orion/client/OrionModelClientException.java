@@ -1,6 +1,11 @@
 package com.llmrix.model.orion.client;
 
+import lombok.Getter;
+import lombok.experimental.Accessors;
+
 /** A transport or protocol failure returned by a remote LLM Router server. */
+@Getter
+@Accessors(fluent = true)
 public final class OrionModelClientException extends RuntimeException {
     private final int statusCode;
 
@@ -14,7 +19,4 @@ public final class OrionModelClientException extends RuntimeException {
         this.statusCode = -1;
     }
 
-    public int statusCode() {
-        return statusCode;
-    }
 }

@@ -6,12 +6,18 @@
     <parent>
         <groupId>com.llmrix.model</groupId>
         <artifactId>llmrix-model-client</artifactId>
-        <version>1.0.2</version>
+        <version>1.0.3</version>
     </parent>
     <artifactId>llmrix-model-orion-spring-starter</artifactId>
     <name>llmrix-model-orion-spring-starter</name>
     <description>Spring Boot auto-configuration starter for LLMRix Orion client</description>
     <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+            <optional>true</optional>
+        </dependency>
         <dependency>
             <groupId>com.llmrix.model</groupId>
             <artifactId>llmrix-model-orion</artifactId>

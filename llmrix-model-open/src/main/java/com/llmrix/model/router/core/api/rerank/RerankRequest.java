@@ -8,15 +8,22 @@ import lombok.experimental.Accessors;
 import java.util.List;
 import java.util.Objects;
 
+/** Public data type used by the model routing API. */
 @Getter
 @Accessors(fluent = true)
 public final class RerankRequest implements ModelRequest {
+    /** Query used to score candidate documents. */
     private final String query;
+    /** Candidate documents in their original order. */
     private final List<String> documents;
+    /** Maximum number of results to return. */
     private final Integer topN;
+    /** Whether result documents should be copied into the response. */
     private final boolean returnDocuments;
+    /** Router selection hints. */
     private final RoutingHints routingHints;
 
+    /** Creates an instance of this API type. */
     public RerankRequest(String query, List<String> documents, Integer topN,
                          Boolean returnDocuments, RoutingHints routingHints) {
         if (query == null || query.isBlank()) throw new IllegalArgumentException("rerank query must not be blank");
@@ -31,11 +38,14 @@ public final class RerankRequest implements ModelRequest {
         this.routingHints = routingHints == null ? RoutingHints.none() : routingHints;
     }
 
+    /** Creates an instance of this API type. */
     public RerankRequest(String query, List<String> documents) {
         this(query, documents, null, false, null);
     }
 
+    /** Implements the API contract. */
     @Override
+    /** Executes the associated model API operation. */
     public int estimatedInputTokens() {
         long estimate = query.length();
         estimate += documents.stream().mapToLong(String::length).sum();

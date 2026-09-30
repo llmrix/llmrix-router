@@ -1,8 +1,13 @@
 package com.llmrix.model.router.core.state;
 
+import lombok.Getter;
+import lombok.experimental.Accessors;
+
 import java.time.Duration;
 
 /** Bounds the in-process quota partition registry without evicting active quota state. */
+@Getter
+@Accessors(fluent = true)
 public final class LocalQuotaOptions {
     public static final LocalQuotaOptions DEFAULT = new LocalQuotaOptions(10_000, Duration.ofMinutes(2));
 
@@ -21,11 +26,4 @@ public final class LocalQuotaOptions {
         this.idleTimeout = idleTimeout;
     }
 
-    public int maxPartitions() {
-        return maxPartitions;
-    }
-
-    public Duration idleTimeout() {
-        return idleTimeout;
-    }
 }

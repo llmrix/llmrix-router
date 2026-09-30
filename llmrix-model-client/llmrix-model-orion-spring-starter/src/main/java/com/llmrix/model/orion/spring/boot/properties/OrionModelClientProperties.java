@@ -1,5 +1,7 @@
 package com.llmrix.model.orion.spring.boot.properties;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.time.Duration;
@@ -7,6 +9,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 @ConfigurationProperties("llmrix.model.orion")
+@Getter
+@Setter
 public class OrionModelClientProperties {
     private boolean enabled = true;
     private String baseUrl = "http://localhost:8080/v1";
@@ -17,23 +21,8 @@ public class OrionModelClientProperties {
     private Duration timeout = Duration.ofSeconds(60);
     private Map<String, String> headers = new LinkedHashMap<>();
 
-    public boolean isEnabled() { return enabled; }
-    public void setEnabled(boolean enabled) { this.enabled = enabled; }
-    public String getBaseUrl() { return baseUrl; }
-    public void setBaseUrl(String baseUrl) { this.baseUrl = baseUrl; }
-    public String getApiKey() { return apiKey; }
-    public void setApiKey(String apiKey) { this.apiKey = apiKey; }
-    public String getDefaultModel() { return defaultModel; }
-    public void setDefaultModel(String defaultModel) { this.defaultModel = defaultModel; }
-    public Defaults getDefaults() { return defaults; }
-    public void setDefaults(Defaults defaults) { this.defaults = defaults; }
-    public Duration getConnectTimeout() { return connectTimeout; }
-    public void setConnectTimeout(Duration connectTimeout) { this.connectTimeout = connectTimeout; }
-    public Duration getTimeout() { return timeout; }
-    public void setTimeout(Duration timeout) { this.timeout = timeout; }
-    public Map<String, String> getHeaders() { return headers; }
-    public void setHeaders(Map<String, String> headers) { this.headers = headers; }
-
+    @Getter
+    @Setter
     public static class Defaults {
         private String chat;
         private String embedding;
@@ -42,17 +31,5 @@ public class OrionModelClientProperties {
         private String image;
         private String video;
 
-        public String getChat() { return chat; }
-        public void setChat(String chat) { this.chat = chat; }
-        public String getEmbedding() { return embedding; }
-        public void setEmbedding(String embedding) { this.embedding = embedding; }
-        public String getRerank() { return rerank; }
-        public void setRerank(String rerank) { this.rerank = rerank; }
-        public String getAudio() { return audio; }
-        public void setAudio(String audio) { this.audio = audio; }
-        public String getImage() { return image; }
-        public void setImage(String image) { this.image = image; }
-        public String getVideo() { return video; }
-        public void setVideo(String video) { this.video = video; }
     }
 }

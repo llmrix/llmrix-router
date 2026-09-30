@@ -15,6 +15,10 @@ import com.llmrix.model.router.core.engine.RoutedChatModels;
 import com.llmrix.model.router.core.engine.RoutedModelOperations;
 import com.llmrix.model.router.core.engine.RoutedModelOperationsRegistry;
 import com.llmrix.model.router.core.routing.RoutingStrategy;
+import com.llmrix.model.router.core.routing.JevDecisionClient;
+import com.llmrix.model.router.core.routing.JevRoutingStrategy;
+import com.llmrix.model.router.core.spi.decision.JevDecisionProvider;
+import com.llmrix.model.router.core.spi.decision.JevDecisionProviderRequest;
 import com.llmrix.model.router.core.state.InMemoryRouterStateStore;
 import com.llmrix.model.router.core.state.LocalQuotaOptions;
 import com.llmrix.model.router.core.state.RouterStateStore;
@@ -27,6 +31,7 @@ import com.llmrix.model.router.core.spi.auth.ProviderAuthenticator;
 import com.llmrix.model.router.core.spi.cost.ModelPricingResolver;
 import com.llmrix.model.router.core.spi.provider.ModelProvider;
 import com.llmrix.model.router.integrations.redis.RedisRouterStateStore;
+import com.llmrix.model.router.integrations.decision.TypesafeJevDecisionProvider;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.observation.ObservationRegistry;
 import io.micrometer.core.instrument.binder.MeterBinder;
@@ -56,6 +61,12 @@ import java.util.concurrent.ExecutorService;
 @EnableConfigurationProperties(LlmRouterProperties.class)
 public class LlmRouterAutoConfiguration {
     private static final System.Logger LOGGER = System.getLogger(LlmRouterAutoConfiguration.class.getName());
+
+    @Bean
+    @ConditionalOnMissingBean(JevDecisionProvider.class)
+    JevDecisionProvider typesafeJevDecisionProvider() {
+        return new TypesafeJevDecisionProvider();
+    }
 
     @Bean
     @ConditionalOnMissingBean
@@ -138,6 +149,8 @@ public class LlmRouterAutoConfiguration {
             ObjectProvider<ModelProvider> providers,
             ObjectProvider<ProviderAuthenticator> authenticators,
             ObjectProvider<ModelPricingResolver> pricingResolvers,
+            ObjectProvider<JevDecisionClient> jevDecisionClients,
+            ObjectProvider<JevDecisionProvider> jevDecisionProviders,
             ObjectProvider<RouterListener> listenerProvider,
             @Qualifier("llmRouterExecutor") ObjectProvider<ExecutorService> executorProvider) {
         validateRoot(properties);
@@ -157,6 +170,27 @@ public class LlmRouterAutoConfiguration {
         authenticators.orderedStream().forEach(builder::authenticator);
         pricingResolvers.orderedStream().forEach(builder::pricingResolver);
         strategies.all().forEach(builder::strategy);
+        LlmRouterProperties.Decision decision = properties.getDecision();
+        JevDecisionClient jevClient = jevDecisionClients.getIfAvailable();
+        if (decision != null && decision.isEnabled()) {
+            if (!"jev".equalsIgnoreCase(decision.getProvider())) {
+                throw new IllegalArgumentException("unsupported decision provider: " + decision.getProvider());
+            }
+            if (jevClient == null) {
+                JevDecisionProvider provider = jevDecisionProviders.orderedStream()
+                        .filter(candidate -> decision.getProvider().equalsIgnoreCase(candidate.id()))
+                        .findFirst().orElse(null);
+                if (provider == null) {
+                    throw new IllegalArgumentException(
+                            "no JevDecisionClient bean or JevDecisionProvider for decision provider: "
+                                    + decision.getProvider());
+                }
+                jevClient = provider.create(new JevDecisionProviderRequest(
+                        decision.getProvider(), decision.getBaseUrl(), decision.getApiKey(),
+                        decision.getAuthenticator(), decision.getOptions()));
+            }
+        }
+        final JevDecisionClient configuredJevClient = jevClient;
 
         ExecutorService executor = executorProvider.getIfAvailable();
         if (executor != null) {
@@ -171,7 +205,15 @@ public class LlmRouterAutoConfiguration {
             List<String> modelIds = route.getModels().stream()
                     .map(reference -> routeModelId(id, reference))
                     .toList();
-            configured.strategy(route.getStrategy());
+            RoutingStrategy routeStrategy = strategies.get(route.getStrategy());
+            String strategyName = route.getStrategy();
+            if (decision != null && decision.isEnabled() && decision.getRoutes().contains(id)) {
+                routeStrategy = new JevRoutingStrategy(configuredJevClient, routeStrategy,
+                        decision.getMinConfidence(), decision.getTimeout());
+                strategyName = "__jev_" + id;
+                builder.strategy(strategyName, routeStrategy);
+            }
+            configured.strategy(strategyName);
             LlmRouterProperties.Quota quota = route.getQuota();
             if (quota != null) {
                 configured.quota(quota.getRequestsPerMinute(), quota.getTokensPerMinute());
@@ -277,6 +319,21 @@ public class LlmRouterAutoConfiguration {
         }
         if (properties.getDefaultRoute() == null || properties.getDefaultRoute().isBlank()) {
             throw new IllegalArgumentException("llmrix.model.router.default-route must not be blank");
+        }
+        LlmRouterProperties.Decision decision = properties.getDecision();
+        if (decision == null) throw new IllegalArgumentException("llmrix.model.router.decision must not be null");
+        if (decision.getTimeout() == null || decision.getTimeout().isZero() || decision.getTimeout().isNegative()) {
+            throw new IllegalArgumentException("llmrix.model.router.decision.timeout must be positive");
+        }
+        if (!Double.isFinite(decision.getMinConfidence())
+                || decision.getMinConfidence() < 0 || decision.getMinConfidence() > 1) {
+            throw new IllegalArgumentException("llmrix.model.router.decision.min-confidence must be between 0 and 1");
+        }
+        if (decision.getRoutes() == null) {
+            throw new IllegalArgumentException("llmrix.model.router.decision.routes must not be null");
+        }
+        if (decision.isEnabled() && !"fallback".equalsIgnoreCase(decision.getFailureMode())) {
+            throw new IllegalArgumentException("llmrix.model.router.decision.failure-mode must be fallback");
         }
         LlmRouterProperties.Execution execution = properties.getExecution();
         if (execution == null) throw new IllegalArgumentException("llmrix.model.router.execution must not be null");

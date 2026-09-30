@@ -4,6 +4,17 @@ llmrix:
       enabled: true
       fail-fast: true
       default-route: general
+      decision:
+        enabled: false
+        provider: jev
+        base-url: ${JEV_BASE_URL:https://api.typesafe.ai}
+        api-key: ${JEV_API_KEY:}
+        authenticator: bearer
+        options: {}
+        routes: [general, reasoning]
+        timeout: 2s
+        min-confidence: 0.70
+        failure-mode: fallback
       routes:
         general:
           strategy: balanced
@@ -139,6 +150,8 @@ llmrix:
               features: [streaming, tools, structured-output]
               input-modalities: [vision]
               traits: [reasoning]
+              metadata:
+                routing-tags: general
               max-input-tokens: 128000
               priority: 100
               weight: 100
@@ -155,10 +168,14 @@ llmrix:
               operations: [chat]
               features: [streaming, tools]
               input-modalities: [vision, video]
+              metadata:
+                routing-tags: general
             - name: google/gemma-4-31b-it:free
               operations: [chat]
               features: [streaming, tools]
               input-modalities: [vision, video]
+              metadata:
+                routing-tags: general
             - name: google/gemma-4-26b-a4b-it:free
               operations: [chat]
               features: [streaming, tools]
@@ -167,14 +184,20 @@ llmrix:
               operations: [chat]
               features: [streaming, tools]
               traits: [code, reasoning]
+              metadata:
+                routing-tags: general,reasoning,code
             - name: nvidia/nemotron-3-super-120b-a12b:free
               operations: [chat]
               features: [streaming, tools]
               traits: [reasoning, long-context]
+              metadata:
+                routing-tags: reasoning
             - name: minimax/minimax-m2.7:free
               operations: [chat]
               features: [streaming, tools]
               traits: [reasoning]
+              metadata:
+                routing-tags: reasoning
             - name: cohere/north-mini-code:free
               operations: [chat]
               features: [streaming, tools]

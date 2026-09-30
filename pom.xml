@@ -6,7 +6,7 @@
 
     <groupId>com.llmrix.model</groupId>
     <artifactId>llmrix-router</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
     <packaging>pom</packaging>
 
     <name>llmrix-router</name>
@@ -57,7 +57,7 @@
 
     <properties>
         <!-- Unified project version for internal module dependency references -->
-        <llmrix-model.version>1.0.2</llmrix-model.version>
+        <llmrix-model.version>1.0.3</llmrix-model.version>
         <java.version>17</java.version>
         <maven.compiler.release>${java.version}</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

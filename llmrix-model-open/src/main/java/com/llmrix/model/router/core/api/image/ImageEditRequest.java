@@ -6,12 +6,16 @@ import lombok.experimental.Accessors;
 
 import java.util.List;
 
+/** Public data type used by the model routing API. */
 @Getter
 @Accessors(fluent = true)
 public final class ImageEditRequest extends ImageRequest {
+    /** Value of the `images` property. */
     private final List<ImageInput> images;
+    /** Value of the `mask` property. */
     private final ImageInput mask;
 
+    /** Creates an instance of this API type. */
     public ImageEditRequest(List<ImageInput> images, ImageInput mask, String prompt, Integer count,
                             String size, String quality, String responseFormat, String user,
                             String background, String outputFormat, Integer outputCompression,

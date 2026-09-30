@@ -39,8 +39,29 @@ public class LlmRouterProperties {
     private Execution execution = new Execution();
     /** Metrics, tracing, and prompt-observation settings. */
     private Observability observability = new Observability();
+    /** Optional JEV semantic enhancement for selected routes. */
+    private Decision decision = new Decision();
     /** Shared state backend configuration. */
     private State state = new State();
+
+    @Getter
+    @Setter
+    public static class Decision {
+        private boolean enabled;
+        private String provider = "jev";
+        /** JEV decision endpoint. Required by provider implementations that use HTTP. */
+        private String baseUrl;
+        /** JEV credential. Prefer an environment variable or secret reference. */
+        private String apiKey;
+        /** Authentication scheme used by the configured JEV provider. */
+        private String authenticator = "bearer";
+        /** Provider-specific JEV options. */
+        private Map<String, Object> options = Map.of();
+        private Set<String> routes = Set.of();
+        private Duration timeout = Duration.ofSeconds(2);
+        private double minConfidence = 0.70d;
+        private String failureMode = "fallback";
+    }
 
     @Getter
     @Setter

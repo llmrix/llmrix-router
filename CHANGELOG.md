@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.3] - 2026-09-28
+
+### Added
+
+- Optional JEV semantic routing enhancement for selected Chat routes. JEV receives the current
+  candidate `routing-tags` and may return preferred tags with a confidence score; the existing
+  routing strategy remains responsible for the final model selection and fallback behavior.
+- Provider-neutral `JevDecisionClient`, `JevDecisionProvider`, and `JevDecisionProviderRequest` SPIs,
+  plus a built-in TypeSafe JEV provider using `POST /v1/systemone`.
+- Spring configuration for the JEV decision integration: `decision.enabled`, `provider`, `base-url`,
+  `api-key`, `authenticator`, `options`, `routes`, `timeout`, `min-confidence`, and `failure-mode`.
+- User-defined model `metadata.routing-tags` configuration and validation metadata.
+
+### Changed
+
+- JEV is treated as an optional policy enhancement. Timeouts, invalid decisions, unknown tags,
+  low confidence, and provider failures fall back to the existing route strategy.
+- JEV is not enabled by default. The built-in provider defaults to `https://api.typesafe.ai`,
+  uses `decision.api-key` as a Bearer token, and can be overridden with a custom client/provider.
+
 ## [Unreleased]
 
 ## [1.0.2] - 2026-08-27
@@ -92,7 +112,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed LangChain4j provider implementation, tests, and dependencies.
 - Removed the generic `Bean` provider abstraction and `CandidateFactoryRegistry`.
 - Removed route-level `fallbacks` configuration, fallback execution branches, and fallback lifecycle metrics. Every route now uses only its `models` pool; when no model remains available, execution raises `ModelUnavailableException` and the HTTP layer returns `503 Service Unavailable`.
-- Removed `README.zh-CN.md` (consolidated to single-language documentation).
 - Removed default fallback lists from the server example because route models already provide load balancing and failure continuation.
 
 ### Fixed
@@ -111,7 +130,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `llmrix-model-examples`: Maven examples aggregator with module-scoped child projects; Redis and HTTP integration tests.
 - Maven Central deployment configuration and project metadata normalization.
 
-[Unreleased]: https://github.com/llmrix/llmrix-router/compare/v1.0.2...HEAD
+[Unreleased]: https://github.com/llmrix/llmrix-router/compare/v1.0.3...HEAD
+[1.0.3]: https://github.com/llmrix/llmrix-router/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/llmrix/llmrix-router/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/llmrix/llmrix-router/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/llmrix/llmrix-router/releases/tag/v1.0.0

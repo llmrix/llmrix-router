@@ -1,6 +1,15 @@
 llmrix:
   model:
     router:
+      decision:
+        enabled: ${JEV_ENABLED:false}
+        provider: jev
+        base-url: ${JEV_BASE_URL:https://api.typesafe.ai}
+        api-key: ${JEV_API_KEY:}
+        routes: [general, reasoning]
+        timeout: 2s
+        min-confidence: 0.70
+        failure-mode: fallback
       default-route: general
       routes:
         general:
@@ -96,14 +105,20 @@ llmrix:
               operations: [ chat ]
               features: [ streaming, tools ]
               input-modalities: [ vision ]
+              metadata:
+                routing-tags: general
             - name: minimax/minimax-m3:free
               operations: [ chat ]
               features: [ streaming, tools ]
               input-modalities: [ vision, video ]
+              metadata:
+                routing-tags: general
             - name: google/gemma-4-31b-it:free
               operations: [ chat ]
               features: [ streaming, tools ]
               input-modalities: [ vision, video ]
+              metadata:
+                routing-tags: general
             - name: google/gemma-4-26b-a4b-it:free
               operations: [ chat ]
               features: [ streaming, tools ]
@@ -112,18 +127,26 @@ llmrix:
               operations: [ chat ]
               features: [ streaming, tools ]
               traits: [ code, reasoning ]
+              metadata:
+                routing-tags: general,reasoning,code
             - name: nvidia/nemotron-3-super-120b-a12b:free
               operations: [ chat ]
               features: [ streaming, tools ]
               traits: [ reasoning, long-context ]
+              metadata:
+                routing-tags: reasoning
             - name: minimax/minimax-m2.7:free
               operations: [ chat ]
               features: [ streaming, tools ]
               traits: [ reasoning ]
+              metadata:
+                routing-tags: reasoning
             - name: cohere/north-mini-code:free
               operations: [ chat ]
               features: [ streaming, tools ]
               traits: [ code ]
+              metadata:
+                routing-tags: code
             - name: nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free
               operations: [ chat ]
               features: [ streaming, tools ]

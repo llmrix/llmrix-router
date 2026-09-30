@@ -35,6 +35,63 @@
       "description": "Routing strategy ID for this route."
     },
     {
+      "name": "llmrix.model.router.decision.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Enables JEV semantic routing enhancement for selected routes.",
+      "defaultValue": false
+    },
+    {
+      "name": "llmrix.model.router.decision.provider",
+      "type": "java.lang.String",
+      "description": "Decision provider identifier.",
+      "defaultValue": "jev"
+    },
+    {
+      "name": "llmrix.model.router.decision.base-url",
+      "type": "java.lang.String",
+      "description": "JEV decision provider base URL. The built-in TypeSafe provider appends /v1/systemone.",
+      "defaultValue": "https://api.typesafe.ai"
+    },
+    {
+      "name": "llmrix.model.router.decision.api-key",
+      "type": "java.lang.String",
+      "description": "Credential passed to the configured JEV decision provider."
+    },
+    {
+      "name": "llmrix.model.router.decision.authenticator",
+      "type": "java.lang.String",
+      "description": "Authentication scheme used by the configured JEV decision provider; the built-in provider uses bearer.",
+      "defaultValue": "bearer"
+    },
+    {
+      "name": "llmrix.model.router.decision.options",
+      "type": "java.util.Map<java.lang.String,java.lang.Object>",
+      "description": "Provider-specific JEV options."
+    },
+    {
+      "name": "llmrix.model.router.decision.routes",
+      "type": "java.util.Set<java.lang.String>",
+      "description": "Existing routes whose candidate selection is enhanced by JEV."
+    },
+    {
+      "name": "llmrix.model.router.decision.timeout",
+      "type": "java.time.Duration",
+      "description": "Additional timeout budget for the decision provider.",
+      "defaultValue": "2s"
+    },
+    {
+      "name": "llmrix.model.router.decision.min-confidence",
+      "type": "java.lang.Double",
+      "description": "Minimum JEV confidence required to apply semantic preference.",
+      "defaultValue": 0.7
+    },
+    {
+      "name": "llmrix.model.router.decision.failure-mode",
+      "type": "java.lang.String",
+      "description": "Failure behavior for the decision provider. The first supported value is fallback.",
+      "defaultValue": "fallback"
+    },
+    {
       "name": "llmrix.model.router.routes.*.models",
       "type": "java.util.List<com.llmrix.model.router.spring.boot.properties.LlmRouterProperties$ModelReference>",
       "description": "Ordered model references available to this route."
@@ -115,6 +172,11 @@
       "name": "llmrix.model.router.integrations.*.models[].traits",
       "type": "java.util.Set<com.llmrix.model.router.core.model.ModelTrait>",
       "description": "Model traits used for routing, such as code, reasoning, or long-context."
+    },
+    {
+      "name": "llmrix.model.router.integrations.*.models[].metadata.routing-tags",
+      "type": "java.lang.String",
+      "description": "User-defined comma-separated semantic tags used by the optional JEV routing enhancement."
     }
   ],
   "hints": [
